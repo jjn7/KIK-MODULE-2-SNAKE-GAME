@@ -76,7 +76,21 @@ const initGame = () => {
         }
     }
     playBoard.innerHTML = html;
+
+if (gamePaused) return;
 }
 updateFoodPosition();
 setIntervalId = setInterval(initGame, 100);
 document.addEventListener("keyup", changeDirection);
+
+// Pause/Resume game
+function togglePause() {
+    if (!gameRunning) return;
+    
+    gamePaused = !gamePaused;
+    pauseBtn.textContent = gamePaused ? 'Resume' : 'Pause';
+    
+    if (!gamePaused) {
+        gameLoop();
+    }
+}
