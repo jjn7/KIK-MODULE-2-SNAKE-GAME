@@ -9,6 +9,7 @@ let velocityX = 0, velocityY = 0;
 let snakeBody = [];
 let setIntervalId;
 let score = 0;
+let gamePaused = false;
 // Getting high score from the local storage
 let highScore = localStorage.getItem("high-score") || 0;
 highScoreElement.innerText = `High Score: ${highScore}`;
@@ -42,7 +43,7 @@ const changeDirection = e => {
 // Calling changeDirection on each key click and passing key dataset value as an object
 controls.forEach(button => button.addEventListener("click", () => changeDirection({ key: button.dataset.key })));
 const initGame = () => {
-    if(gameOver) return handleGameOver();
+    if (gamePaused || gameOver) return handleGameOver();
     let html = `<div class="food" style="grid-area: ${foodY} / ${foodX}"></div>`;
     // Checking if the snake hit the food
     if(snakeX === foodX && snakeY === foodY) {
@@ -77,20 +78,23 @@ const initGame = () => {
     }
     playBoard.innerHTML = html;
 
-if (gamePaused) return;
 }
 updateFoodPosition();
 setIntervalId = setInterval(initGame, 100);
 document.addEventListener("keyup", changeDirection);
 
-// Pause/Resume game
-function togglePause() {
-    if (!gameRunning) return;
-    
-    gamePaused = !gamePaused;
-    pauseBtn.textContent = gamePaused ? 'Resume' : 'Pause';
-    
-    if (!gamePaused) {
-        gameLoop();
+const pauseMessage = document.querySelector(".pause-message");
+
+document.addEventListener("keydown", (e) => {
+    if (e.code === "Space") {
+        gamePaused = !gamePaused;
+
+        if (gamePaused) {
+            console.log("Game paused");
+            pauseMessage.style.display = "block";
+        } else {
+            console.log("Game resumed");
+            pauseMessage.style.display = "none";
+        }
     }
-}
+});
