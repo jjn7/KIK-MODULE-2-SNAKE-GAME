@@ -57,6 +57,18 @@ body {
   cursor: pointer;
   border-right: 1px solid #171B26;
 }
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 15px 0;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.score {
+    color: #27ae60;
+}
 @media screen and (max-width: 800px) {
   .wrapper {
     width: 90vmin;
