@@ -11,19 +11,131 @@ let setIntervalId;
 let score = 0;
 let gamePaused = false;
 
-//PAUSE SCREEN
-const pauseMessage = document.querySelector(".pause-message");
+// GAME SCREEN TO REPLACE PAUSE, GAME OVER & START
+let overlayScreen;
 
+// Initialize overlay screen
+const initOverlay = () => {
+    overlayScreen = document.createElement("div");
+    overlayScreen.className = "game-overlay";
+    overlayScreen.innerHTML = `
+        <div class="overlay-content">
+            <div class="game-title">SNAKE GAME</div>
+            <div class="game-status"></div>
+            <div class="game-instructions">
+                <h3>How to Play:</h3>
+                <div class="instruction-group">
+                    <div class="control-item">
+                        <span class="control-key">↑ ↓ ← →</span>
+                        <span class="control-desc">Move snake</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="control-key">SPACE</span>
+                        <span class="control-desc">Pause/Resume</span>
+                    </div>
+                </div>
+                <p class="game-rules">Eat the red food to grow and increase your score. Don't hit the walls or your own tail!</p>
+            </div>
+            <div class="score-display"></div>
+            <button class="game-button" onclick="handleGameAction()">START GAME</button>
+        </div>
+    `;
+    document.body.appendChild(overlayScreen);
+    showStartScreen();
+};
+
+const showStartScreen = () => {
+    const statusElement = overlayScreen.querySelector(".game-status");
+    const scoreDisplay = overlayScreen.querySelector(".score-display");
+    const gameButton = overlayScreen.querySelector(".game-button");
+    
+    statusElement.innerHTML = "Ready to Play?";
+    statusElement.className = "game-status start";
+    scoreDisplay.innerHTML = `<div class="high-score-display">High Score: ${highScore}</div>`;
+    gameButton.textContent = "START GAME";
+    gameButton.onclick = startGame;
+    overlayScreen.style.display = "flex";
+};
+
+const showPauseScreen = () => {
+    const statusElement = overlayScreen.querySelector(".game-status");
+    const scoreDisplay = overlayScreen.querySelector(".score-display");
+    const gameButton = overlayScreen.querySelector(".game-button");
+    
+    statusElement.innerHTML = "Game Paused";
+    statusElement.className = "game-status pause";
+    scoreDisplay.innerHTML = `
+        <div class="current-score">Current Score: ${score}</div>
+        <div class="high-score-display">High Score: ${highScore}</div>
+    `;
+    gameButton.textContent = "RESUME";
+    gameButton.onclick = resumeGame;
+    overlayScreen.style.display = "flex";
+};
+
+const showGameOverScreen = () => {
+    const statusElement = overlayScreen.querySelector(".game-status");
+    const scoreDisplay = overlayScreen.querySelector(".score-display");
+    const gameButton = overlayScreen.querySelector(".game-button");
+    
+    statusElement.innerHTML = "Game Over!";
+    statusElement.className = "game-status game-over";
+    scoreDisplay.innerHTML = `
+        <div class="final-score">Final Score: ${score}</div>
+        <div class="high-score-display">High Score: ${highScore}</div>
+    `;
+    gameButton.textContent = "PLAY AGAIN";
+    gameButton.onclick = restartGame;
+    overlayScreen.style.display = "flex";
+};
+
+const startGame = () => {
+    gameStarted = true;
+    overlayScreen.style.display = "none";
+    updateFoodPosition();
+    setIntervalId = setInterval(initGame, 100);
+};
+
+const resumeGame = () => {
+    gamePaused = false;
+    overlayScreen.style.display = "none";
+};
+
+const pauseGame = () => {
+    gamePaused = true;
+    showPauseScreen();
+};
+
+const restartGame = () => {
+    // Reset game state
+    gameOver = false;
+    gameStarted = false;
+    gamePaused = false;
+    score = 0;
+    snakeX = 5;
+    snakeY = 5;
+    velocityX = 0;
+    velocityY = 0;
+    snakeBody = [];
+    
+    // Clear interval
+    clearInterval(setIntervalId);
+    
+    // Update UI
+    scoreElement.innerText = `Score: ${score}`;
+    
+    // Show start screen
+    showStartScreen();
+};
+
+// Handle spacebar for pause/resume
 document.addEventListener("keydown", (e) => {
-    if (e.code === "Space") {
-        gamePaused = !gamePaused;
-
+    if (e.code === "Space" && gameStarted && !gameOver) {
+        e.preventDefault();
         if (gamePaused) {
-            console.log("Game paused");
-            pauseMessage.style.display = "block";
+            resumeGame();
         } else {
-            console.log("Game resumed");
-            pauseMessage.style.display = "none";
+            pauseGame();
         }
     }
 });
@@ -36,54 +148,6 @@ const updateFoodPosition = () => {
     // Passing a random 1 - 30 value as food position
     foodX = Math.floor(Math.random() * 30) + 1;
     foodY = Math.floor(Math.random() * 30) + 1;
-}
-const handleGameOver = () => {
-    // Show game over screen instead of alert
-    gameOver = true;
-    clearInterval(setIntervalId);
-
-    // GAME OVER SCREEN
-    let gameOverScreen = document.querySelector(".game-over-screen");
-    if (!gameOverScreen) {
-        gameOverScreen = document.createElement("div");
-        gameOverScreen.className = "game-over-screen";
-        gameOverScreen.innerHTML = `
-            <div class="game-over-content">
-                <h2>Game Over!</h2>
-                <p>Final Score: ${score}</p>
-                <p>High Score: ${highScore}</p>
-                <button onclick="restartGame()">Play Again</button>
-            </div>
-        `;
-        document.body.appendChild(gameOverScreen);
-    }
-    gameOverScreen.style.display = "flex";
-}
-
-// RESTART GAME
-const restartGame = () => {
-    const gameOverScreen = document.querySelector(".game-over-screen");
-    if (gameOverScreen) {
-        gameOverScreen.style.display = "none";
-    }
-    
-    // Reset game state
-    gameOver = false;
-    gamePaused = false;
-    score = 0;
-    snakeX = 5;
-    snakeY = 5;
-    velocityX = 0;
-    velocityY = 0;
-    snakeBody = [];
-    
-    // Update UI
-    scoreElement.innerText = `Score: ${score}`;
-    pauseMessage.style.display = "none";
-    
-    // Restart game loop
-    updateFoodPosition();
-    setIntervalId = setInterval(initGame, 100);
 }
 
 const changeDirection = e => {
@@ -152,6 +216,21 @@ const initGame = () => {
     playBoard.innerHTML = html;
 
 }
-updateFoodPosition();
-setIntervalId = setInterval(initGame, 100);
+
+// Global function for button onclick
+window.handleGameAction = () => {
+    if (!gameStarted) {
+        startGame();
+    } else if (gamePaused) {
+        resumeGame();
+    } else if (gameOver) {
+        restartGame();
+    }
+};
+
+// Initialize the game
+document.addEventListener("DOMContentLoaded", () => {
+    initOverlay();
+});
+
 document.addEventListener("keyup", changeDirection);
