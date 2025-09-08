@@ -147,9 +147,31 @@ highScoreElement.innerText = `High Score: ${highScore}`;
 
 const updateFoodPosition = () => {
     // Passing a random 1 - 30 value as food position
+    do {
     foodX = Math.floor(Math.random() * 30) + 1;
     foodY = Math.floor(Math.random() * 30) + 1;
+    console.log(`Adding food to position: (${foodX}, ${foodY})`);
+    }
+    while (snakeBody.some(segment => segment[1] === foodX && segment[0] === foodY));
+    console.log(`Food successfully placed`);
 }
+
+// DEBUG: CHECKING FOOD POSITION
+const debugFoodPosition = () => {
+    console.log("=== FOOD DEBUG ===");
+    console.log(`Food position: (${foodX}, ${foodY})`);
+    
+    // CHECK IF FOOD GENERATES ON SNAKE BODY
+    let foodOnSnake = false;
+    for (let segment of snakeBody) {
+        if (segment[1] === foodX && segment[1] === foodY) {
+            foodOnSnake = true;
+            console.warn("WARNING: FOOD GENERATED ON SNAKE");
+            break;
+        }
+    }
+    console.log(`Food on snake: ${foodOnSnake}`);
+};
 
 // GAME OVER HANDLER
 const handleGameOver = () => {
@@ -191,8 +213,9 @@ const initGame = () => {
 
     // Checking if the snake hit the food
     if(snakeX === foodX && snakeY === foodY) {
+        console.log("FOOD EATEN! SCORE UPDATE:", score + 1); // DEBUG: CHECK FOOD EATED
         updateFoodPosition();
-        snakeBody.push([foodY, foodX]); // Pushing food position to snake body array
+        snakeBody.push([foodX, foodY]); // Pushing food position to snake body array
         score++; // increment score by 1
         highScore = score >= highScore ? score : highScore;
         localStorage.setItem("high-score", highScore);
@@ -239,6 +262,8 @@ window.handleGameAction = () => {
 
 // Initialize the game
 document.addEventListener("DOMContentLoaded", () => {
+    console.clear();
+    console.log("New Game Started - Debug Mode Active");
     initOverlay();
 });
 
