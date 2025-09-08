@@ -2,7 +2,6 @@ const playBoard = document.querySelector(".play-board");
 const scoreElement = document.querySelector(".score");
 const highScoreElement = document.querySelector(".high-score");
 const controls = document.querySelectorAll(".controls i");
-let gameOver = false;
 let foodX, foodY;
 let snakeX = 5, snakeY = 5;
 let velocityX = 0, velocityY = 0;
@@ -10,6 +9,8 @@ let snakeBody = [];
 let setIntervalId;
 let score = 0;
 let gamePaused = false;
+let gameOver = false;
+let gameStarted = false;
 
 // GAME SCREEN TO REPLACE PAUSE, GAME OVER & START
 let overlayScreen;
@@ -45,20 +46,20 @@ const initOverlay = () => {
 };
 
 const showStartScreen = () => {
-    const statusElement = overlayScreen.querySelector(".game-status");
+    const statusElement = overlayScreen.querySelector(".game-status");  // GAME START, PAUSED OR OVER
     const scoreDisplay = overlayScreen.querySelector(".score-display");
     const gameButton = overlayScreen.querySelector(".game-button");
     
     statusElement.innerHTML = "Ready to Play?";
     statusElement.className = "game-status start";
-    scoreDisplay.innerHTML = `<div class="high-score-display">High Score: ${highScore}</div>`;
+    scoreDisplay.innerHTML = `<div class="high-score-display">High Score: ${highScore}</div>`;  // ONLY SHOW HIGH SCORE ON START SCREEN
     gameButton.textContent = "START GAME";
     gameButton.onclick = startGame;
     overlayScreen.style.display = "flex";
 };
 
 const showPauseScreen = () => {
-    const statusElement = overlayScreen.querySelector(".game-status");
+    const statusElement = overlayScreen.querySelector(".game-status");  // GAME START, PAUSED OR OVER
     const scoreDisplay = overlayScreen.querySelector(".score-display");
     const gameButton = overlayScreen.querySelector(".game-button");
     
@@ -74,7 +75,7 @@ const showPauseScreen = () => {
 };
 
 const showGameOverScreen = () => {
-    const statusElement = overlayScreen.querySelector(".game-status");
+    const statusElement = overlayScreen.querySelector(".game-status");  // GAME START, PAUSED OR OVER
     const scoreDisplay = overlayScreen.querySelector(".score-display");
     const gameButton = overlayScreen.querySelector(".game-button");
     
@@ -150,6 +151,13 @@ const updateFoodPosition = () => {
     foodY = Math.floor(Math.random() * 30) + 1;
 }
 
+// GAME OVER HANDLER
+const handleGameOver = () => {
+    gameOver = true;
+    clearInterval(setIntervalId);
+    showGameOverScreen();
+};
+
 const changeDirection = e => {
     //PREVENT CHANGE DIRECTION ON PAUSE SCREEN
     if (gamePaused || gameOver) return;
@@ -180,6 +188,7 @@ const initGame = () => {
     if (gameOver) return handleGameOver();
 
     let html = `<div class="food" style="grid-area: ${foodY} / ${foodX}"></div>`;
+
     // Checking if the snake hit the food
     if(snakeX === foodX && snakeY === foodY) {
         updateFoodPosition();
